@@ -7,21 +7,9 @@ import telebot
 from telebot import types
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from flask import Flask
-
-# ─── RENDER WEB SERVER (FOR 24/7 UPTIME) ─────────────────────────────────────
-server = Flask(__name__)
-
-@server.route('/')
-def home():
-    return "Bot is running!"
-
-def run_web_server():
-    port = int(os.environ.get("PORT", 8080))
-    server.run(host='0.0.0.0', port=port)
 
 # ─── CONFIG ───────────────────────────────────────────────────────────────────
-BOT_TOKEN   = os.environ.get("TOKEN", "")
+BOT_TOKEN   = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 ADMIN_ID    = 8373846582
 CHANNEL     = "@rifatsbotz"
 MAX_COUNT   = 11    # max rounds (1 round = all APIs fired once)
@@ -41,12 +29,9 @@ db_lock = threading.Lock()
 # ─── LOAD APIs ────────────────────────────────────────────────────────────────
 def load_apis() -> list[dict]:
     api_file = os.path.join(os.path.dirname(__file__), "apis.json")
-    try:
-        with open(api_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data.get("apis", [])
-    except Exception:
-        return []
+    with open(api_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return data.get("apis", [])
 
 APIS = load_apis()
 
@@ -451,6 +436,5 @@ def handle_text(message: types.Message) -> None:
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    threading.Thread(target=run_web_server, daemon=True).start()
     print("🛡️  『 𝑿𝒀𝑹𝑶𝑵 𝑻𝑭𝑴64 』 V2 — Starting bot polling…")
     bot.infinity_polling(timeout=30, long_polling_timeout=30)
